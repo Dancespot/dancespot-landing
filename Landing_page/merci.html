@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Merci — DanceSpot</title>
+    <meta name="description" content="Merci ! Reste à l’affût pour le lancement de DanceSpot." />
+    <link rel="icon" href="assets/images/logo.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/images/logo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root { --brand:#0184c9; } /* Couleur principale du logo */
+      .bg-hero{
+        background:
+          radial-gradient(1200px 600px at 20% -10%, rgba(255,255,255,.25), transparent 60%),
+          radial-gradient(1000px 500px at 120% 120%, rgba(255,255,255,.15), transparent 60%),
+          linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 40%),
+          var(--brand);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-hero text-white">
+    <main class="min-h-screen max-w-3xl mx-auto px-6 grid place-items-center">
+      <section class="w-full text-center">
+        <!-- Logo blanc (plus grand) -->
+        <img src="assets/images/logo_blanc.png" alt="DanceSpot" class="mx-auto mb-8 w-40 h-40 md:w-56 md:h-56 lg:w-64 lg:h-64 object-contain" />
+
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight" data-i18n="title">Merci ! 🎉</h1>
+        <p class="mt-4 text-lg md:text-xl text-white/90" data-i18n="stayTuned">
+          Reste à l’affût pour le lancement.
+        </p>
+
+        <!-- Tagline punchy -->
+        <p class="mt-4 max-w-2xl mx-auto text-white/85" data-i18n="tagline">
+          <span class="font-semibold">DanceSpot</span>, l’application qui va faire bouger et rassembler la communauté de danse : découvre, réserve, danse — tout au même endroit.
+        </p>
+
+        <!-- Boutons -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="index.html" class="inline-block px-5 py-3 rounded-xl bg-white text-slate-900 font-semibold hover:opacity-90" data-i18n="backHome">
+            Retour à l’accueil
+          </a>
+          <a href="index.html#subscribe" class="inline-block px-5 py-3 rounded-xl border border-white/70 text-white hover:bg-white/10" data-i18n="resubscribe">
+            Me réinscrire avec un autre email
+          </a>
+        </div>
+
+        <p class="mt-8 text-xs text-white/70" data-i18n="legal">
+          Tu peux te désinscrire à tout moment via le lien dans nos emails.
+        </p>
+      </section>
+    </main>
+
+    <!-- i18n (auto selon la langue choisie sur index) -->
+    <script>
+      const translations = {
+        fr: {
+          pageTitle: "Merci — DanceSpot",
+          title: "Merci ! 🎉",
+          stayTuned: "Reste à l’affût pour le lancement.",
+          tagline: "DanceSpot, l’application qui va faire bouger et rassembler la communauté de danse : découvre, réserve, danse — tout au même endroit.",
+          backHome: "Retour à l’accueil",
+          resubscribe: "Me réinscrire avec un autre email",
+          legal: "Tu peux te désinscrire à tout moment via le lien dans nos emails."
+        },
+        en: {
+          pageTitle: "Thank you — DanceSpot",
+          title: "Thank you! 🎉",
+          stayTuned: "Stay tuned for launch.",
+          tagline: "DanceSpot is the app that will energize and bring together the dance community — discover, book, dance, all in one place.",
+          backHome: "Back to home",
+          resubscribe: "Sign up again with another email",
+          legal: "You can unsubscribe at any time using the link in our emails."
+        },
+        es: {
+          pageTitle: "Gracias — DanceSpot",
+          title: "¡Gracias! 🎉",
+          stayTuned: "Mantente atento al lanzamiento.",
+          tagline: "DanceSpot es la app que impulsará y unirá a la comunidad de danza: descubre, reserva y baila — todo en un mismo lugar.",
+          backHome: "Volver al inicio",
+          resubscribe: "Inscribirme de nuevo con otro email",
+          legal: "Puedes darte de baja en cualquier momento desde el enlace de nuestros emails."
+        }
+      };
+
+      function applyTranslations(lang) {
+        const t = translations[lang] || translations.fr;
+        // Remplace le texte
+        document.querySelectorAll("[data-i18n]").forEach(el => {
+          const key = el.getAttribute("data-i18n");
+          if (t[key]) el.textContent = t[key];
+        });
+        // Titre de la page
+        if (t.pageTitle) document.title = t.pageTitle;
+      }
+
+      // Langue choisie sur index (localStorage.lang), défaut FR
+      const chosen = localStorage.getItem("lang") || "fr";
+      applyTranslations(chosen);
+      // (Optionnel) Ajuste l’attribut lang du HTML pour l’accessibilité
+      document.documentElement.setAttribute("lang", chosen);
+    </script>
+  </body>
+</html>

@@ -1,5 +1,4 @@
 // netlify/functions/submission-created.js
-// E-mail de confirmation + FOMO + désinscription SendGrid
 export async function handler(event) {
   try {
     const body = JSON.parse(event.body || "{}");
@@ -15,10 +14,8 @@ export async function handler(event) {
     const lang = (data.lang || "fr").toLowerCase();
     if (!email) return { statusCode: 400, body: "Missing email" };
 
-    // URL du site (domaine primaire Netlify)
     const siteUrl = `https://${event.headers.host || "www.dancespot.app"}/`;
 
-    // Ton message plus "FOMO"
     const T = {
       fr: {
         subject: "Tu es sur la liste 🎟️ — DanceSpot arrive",
@@ -27,14 +24,16 @@ export async function handler(event) {
         intro:
           "Tu fais désormais partie des premiers à vivre l’expérience <strong>DanceSpot</strong>.",
         fomo:
-          "Nous préparons une app qui change la donne : <strong>ne rate plus aucun événement</strong>, <strong>réserve en 2 clics</strong> et <strong>profite d’avantages exclusifs</strong> (réductions partenaires, accès prioritaire, offres limitées).",
+          "Nous préparons une app qui change la donne : <strong>ne rate plus aucun événement</strong>, <strong>réserve en 2 clics</strong> et <strong>profite d’avantages exclusifs</strong>.",
         bullets: [
           "📍 Tous les événements de danse autour de toi, au même endroit",
           "🎫 Billetterie intégrée & rappels intelligents (fini les events manqués)",
-          "💸 Réductions partenaires (cours, vêtements, chaussures, voyages…)",
+          "💸 Réductions partenaires",
           "🚀 Accès anticipé pour les premiers inscrits — places limitées"
         ],
-        cta: "Découvrir ce qui arrive",
+        follow: "Suis-nous pour les coulisses et les annonces :",
+        insta: "Instagram",
+        fb: "Facebook",
         footer:
           "Si tu ne souhaites plus recevoir nos emails, tu peux te désinscrire à tout moment via le lien ci-dessous."
       },
@@ -45,16 +44,18 @@ export async function handler(event) {
         intro:
           "You’re among the first to experience <strong>DanceSpot</strong>.",
         fomo:
-          "We’re building an app to change the game: <strong>never miss a dance event again</strong>, <strong>book in two taps</strong> and <strong>unlock exclusive perks</strong> (partner discounts, early access, limited drops).",
+          "We’re building an app to change the game: <strong>never miss a dance event again</strong>, <strong>book in two taps</strong> and <strong>unlock exclusive perks</strong>.",
         bullets: [
           "📍 All dance events around you, in one place",
-          "🎫 Built-in ticketing & smart reminders (no more missed workshops)",
-          "💸 Partner discounts (classes, apparel, shoes, trips…)",
+          "🎫 Built-in ticketing & smart reminders",
+          "💸 Partner discounts",
           "🚀 Early access for first subscribers — limited spots"
         ],
-        cta: "See what’s coming",
+        follow: "Follow us for behind-the-scenes and drops:",
+        insta: "Instagram",
+        fb: "Facebook",
         footer:
-          "If you no longer wish to receive our emails, you can unsubscribe at any time using the link below."
+          "If you no longer wish to receive our emails, you can unsubscribe any time using the link below."
       },
       es: {
         subject: "¡Estás en la lista 🎟️ — DanceSpot llega pronto!",
@@ -63,21 +64,27 @@ export async function handler(event) {
         intro:
           "Ya formas parte de los primeros en probar <strong>DanceSpot</strong>.",
         fomo:
-          "Estamos creando una app que lo cambia todo: <strong>no te pierdas ningún evento</strong>, <strong>reserva en segundos</strong> y <strong>disfruta de ventajas exclusivas</strong> (descuentos de partners, acceso anticipado, ofertas limitadas).",
+          "Estamos creando una app que lo cambia todo: <strong>no te pierdas ningún evento</strong>, <strong>reserva en segundos</strong> y <strong>disfruta de ventajas exclusivas</strong>.",
         bullets: [
           "📍 Todos los eventos de danza cerca de ti, en un solo lugar",
           "🎫 Entradas integradas y recordatorios inteligentes",
-          "💸 Descuentos de partners (clases, ropa, zapatos, viajes…)",
-          "🚀 Acceso anticipado para los primeros registros — plazas limitadas"
+          "💸 Descuentos de partners",
+          "🚀 Acceso anticipado para los primeros — plazas limitadas"
         ],
-        cta: "Descubre lo que viene",
+        follow: "Síguenos para novedades y anuncios:",
+        insta: "Instagram",
+        fb: "Facebook",
         footer:
           "Si no quieres seguir recibiendo nuestros emails, puedes darte de baja en cualquier momento desde el enlace de abajo."
       }
     };
-    const t = T[["fr", "en", "es"].includes(lang) ? lang : "fr"];
+    const t = T[["fr","en","es"].includes(lang) ? lang : "fr"];
 
     const listItems = t.bullets.map(b => `<li style="margin:6px 0">${b}</li>`).join("");
+
+    // Liens réseaux (adapte si besoin)
+    const instagramUrl = "https://instagram.com/dancespot.app";
+    const facebookUrl  = "https://facebook.com/dancespotapp";
 
     const html = `
 <!doctype html>
@@ -90,9 +97,13 @@ export async function handler(event) {
       .wrap{max-width:640px;margin:0 auto;padding:24px}
       .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;box-shadow:0 8px 28px rgba(2,6,23,.06)}
       .brand{display:inline-block;background:#0184c9;color:#fff;border-radius:12px;padding:6px 10px;font-weight:800}
-      .btn{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:12px 18px;border-radius:12px;font-weight:700}
       .muted{color:#475569;font-size:13px}
       ul{padding-left:18px;margin:10px 0}
+      .social a{display:inline-block;margin-right:10px;text-decoration:none;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
+      .social a.fb{background:#1877F2}
+      .social a.ig{background:#E1306C}
+      .unsub{margin-top:16px;color:#475569;font-size:13px}
+      .unsub a{color:#2563eb}
     </style>
   </head>
   <body>
@@ -104,41 +115,45 @@ export async function handler(event) {
         <p style="margin:0 0 12px 0;line-height:1.6">${t.intro}</p>
         <p style="margin:0 0 10px 0;line-height:1.6">${t.fomo}</p>
         <ul>${listItems}</ul>
-        <p style="margin:14px 0 20px 0">
-          <a class="btn" href="${siteUrl}" target="_blank" rel="noopener noreferrer">${t.cta}</a>
+
+        <p style="margin:16px 0 8px 0;font-weight:700">${t.follow}</p>
+        <p class="social" style="margin:8px 0 0 0">
+          <a class="ig" href="${instagramUrl}" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a class="fb" href="${facebookUrl}"  target="_blank" rel="noopener noreferrer">Facebook</a>
         </p>
-        <p class="muted" style="margin:12px 0 0 0">${t.footer}</p>
+
+        <p class="unsub">
+          ${t.footer}<br>
+          <!-- Lien SendGrid (remplacé automatiquement si Subscription Tracking est activé) -->
+          <a href="<% %>" target="_blank" rel="noopener noreferrer">Se désinscrire</a>
+          <!-- Fallback au cas où le tag SendGrid n'est pas injecté -->
+          <span style="display:block;margin-top:6px">Si le lien ne s’affiche pas, écris-nous : <a href="mailto:unsubscribe@dancespot.app?subject=Unsubscribe">unsubscribe@dancespot.app</a></span>
+        </p>
       </div>
       <p class="muted" style="margin:14px 8px">© ${new Date().getFullYear()} DanceSpot</p>
     </div>
   </body>
 </html>`.trim();
 
-    // ---- Envoi via SendGrid ----
-    const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-    const FROM_EMAIL = process.env.FROM_EMAIL || "no-reply@dancespot.app";
-    const FROM_NAME  = process.env.FROM_NAME  || "DanceSpot";
-
-    if (!SENDGRID_API_KEY) {
-      console.error("Missing SENDGRID_API_KEY");
+    const { SENDGRID_API_KEY, FROM_EMAIL, FROM_NAME } = process.env;
+    if (!SENDGRID_API_KEY || !FROM_EMAIL) {
+      console.error("Missing SENDGRID_API_KEY or FROM_EMAIL");
       return { statusCode: 500, body: "Email not configured" };
     }
 
-    // Active le tracking de désinscription SendGrid : un lien “unsubscribe” est injecté automatiquement.
     const sgPayload = {
       personalizations: [{ to: [{ email }], subject: t.subject }],
-      from: { email: FROM_EMAIL, name: FROM_NAME },
+      from: { email: FROM_EMAIL, name: FROM_NAME || "DanceSpot" },
       content: [{ type: "text/html", value: html }],
+      // Active l'injection du lien de désinscription par SendGrid
       mail_settings: {
         subscription_tracking: {
           enable: true,
-          // Texte de fallback si tu veux forcer un libellé personnalisé :
           text: "Pour vous désabonner, cliquez <% %>.",
           html: "Pour vous désabonner, cliquez <a href='<% %>'>ici</a>."
         }
       }
-      // Variante ASM (si tu utilises des groupes de désinscription SendGrid) :
-      // asm: { group_id: 12345 }
+      // Si tu utilises des Groupes ASM, remplace par : asm: { group_id: 12345 }
     };
 
     const res = await fetch("https://api.sendgrid.com/v3/mail/send", {

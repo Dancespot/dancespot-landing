@@ -14,32 +14,64 @@ export async function handler(event) {
     const lang  = (data.lang  || "fr").toLowerCase();
     if (!email) return { statusCode: 400, body: "Missing email" };
 
-    const instagramUrl = "https://instagram.com/dancespot.app";
-    const facebookUrl  = "https://www.facebook.com/profile.php?id=61581671904988";
+    // ✅ Liens réseaux depuis les variables d’environnement (plus de mauvais liens)
+    const instagramUrl = (process.env.INSTAGRAM_URL || "").trim() || "https://instagram.com/";
+    const facebookUrl  = (process.env.FACEBOOK_URL  || "").trim() || "https://facebook.com/";
+
+    // ✅ Phrases “footer” remplaçables dans les 3 langues (tu mets “ceci” pour chaque langue)
+    const FOOTER_FR = (process.env.FOOTER_TEXT_FR || "").trim() || "—";
+    const FOOTER_EN = (process.env.FOOTER_TEXT_EN || "").trim() || "—";
+    const FOOTER_ES = (process.env.FOOTER_TEXT_ES || "").trim() || "—";
 
     const T = {
-      fr: { subject:"Tu es sur la liste 🎟️ — DanceSpot arrive", preheader:"Accès anticipé, offres limitées et les meilleurs events près de chez toi.",
-        title:"Merci pour ton inscription à la liste d’attente !",
-        intro:"Tu fais désormais partie des premiers à vivre l’expérience <strong>DanceSpot</strong>.",
-        fomo:"Nous préparons une app qui change la donne : <strong>ne rate plus aucun événement</strong>, <strong>réserve en 2 clics</strong> et <strong>profite d’avantages exclusifs</strong>.",
-        bullets:["📍 Tous les événements de danse autour de toi, au même endroit","🎫 Billetterie intégrée & rappels intelligents (fini les events manqués)","💸 Réductions partenaires","🚀 Accès anticipé pour les premiers inscrits — places limitées"],
-        follow:"Suis-nous pour les coulisses et les annonces :", footer:"Tu peux te désabonner à tout moment depuis tes préférences email."
+      fr: {
+        subject: "Tu es sur la liste 🎟️ — DanceSpot arrive",
+        preheader: "Accès anticipé, offres limitées et les meilleurs events près de chez toi.",
+        title: "Merci pour ton inscription à la liste d’attente !",
+        intro: "Tu fais désormais partie des premiers à vivre l’expérience <strong>DanceSpot</strong>.",
+        fomo: "Nous préparons une app qui change la donne : <strong>ne rate plus aucun événement</strong>, <strong>réserve en 2 clics</strong> et <strong>profite d’avantages exclusifs</strong>.",
+        bullets: [
+          "📍 Tous les événements de danse autour de toi, au même endroit",
+          "🎫 Billetterie intégrée & rappels intelligents (fini les events manqués)",
+          "💸 Réductions partenaires",
+          "🚀 Accès anticipé pour les premiers inscrits — places limitées"
+        ],
+        follow: "Suis-nous pour les coulisses et les annonces :",
+        footer: "Si tu ne souhaites plus recevoir nos emails, tu peux te désinscrire à tout moment ci-dessous."
       },
-      en: { subject:"You’re on the list 🎟️ — DanceSpot is coming", preheader:"Early access, limited offers and the best events near you.",
-        title:"Thanks for joining the waitlist!", intro:"You’re among the first to experience <strong>DanceSpot</strong>.",
-        fomo:"We’re building an app to change the game: <strong>never miss a dance event again</strong>, <strong>book in two taps</strong> and <strong>unlock exclusive perks</strong>.",
-        bullets:["📍 All dance events around you, in one place","🎫 Built-in ticketing & smart reminders","💸 Partner discounts","🚀 Early access for first subscribers — limited spots"],
-        follow:"Follow us for behind-the-scenes and drops:", footer:"You can unsubscribe anytime from your email preferences."
+      en: {
+        subject: "You’re on the list 🎟️ — DanceSpot is coming",
+        preheader: "Early access, limited offers and the best events near you.",
+        title: "Thanks for joining the waitlist!",
+        intro: "You’re among the first to experience <strong>DanceSpot</strong>.",
+        fomo: "We’re building an app to change the game: <strong>never miss a dance event again</strong>, <strong>book in two taps</strong> and <strong>unlock exclusive perks</strong>.",
+        bullets: [
+          "📍 All dance events around you, in one place",
+          "🎫 Built-in ticketing & smart reminders",
+          "💸 Partner discounts",
+          "🚀 Early access for first subscribers — limited spots"
+        ],
+        follow: "Follow us for behind-the-scenes and drops:",
+        footer: "If you no longer wish to receive our emails, you can unsubscribe below anytime."
       },
-      es: { subject:"¡Estás en la lista 🎟️ — DanceSpot llega pronto!", preheader:"Acceso anticipado, ofertas limitadas y los mejores eventos cerca de ti.",
-        title:"¡Gracias por unirte a la lista de espera!", intro:"Ya formas parte de los primeros en probar <strong>DanceSpot</strong>.",
-        fomo:"Estamos creando una app que lo cambia todo: <strong>no te pierdas ningún evento</strong>, <strong>reserva en segundos</strong> y <strong>disfruta de ventajas exclusivas</strong>.",
-        bullets:["📍 Todos los eventos de danza cerca de ti, en un solo lugar","🎫 Entradas integradas y recordatorios inteligentes","💸 Descuentos de partners","🚀 Acceso anticipado para los primeros — plazas limitadas"],
-        follow:"Síguenos para novedades y anuncios:", footer:"Puedes darte de baja en cualquier momento desde tus preferencias de correo."
+      es: {
+        subject: "¡Estás en la lista 🎟️ — DanceSpot llega pronto!",
+        preheader: "Acceso anticipado, ofertas limitadas y los mejores eventos cerca de ti.",
+        title: "¡Gracias por unirte a la lista de espera!",
+        intro: "Ya formas parte de los primeros en probar <strong>DanceSpot</strong>.",
+        fomo: "Estamos creando una app que lo cambia todo: <strong>no te pierdas ningún evento</strong>, <strong>reserva en segundos</strong> y <strong>disfruta de ventajas exclusivas</strong>.",
+        bullets: [
+          "📍 Todos los eventos de danza cerca de ti, en un solo lugar",
+          "🎫 Entradas integradas y recordatorios inteligentes",
+          "💸 Descuentos de partners",
+          "🚀 Acceso anticipado para los primeros — plazas limitadas"
+        ],
+        follow: "Síguenos para novedades y anuncios:",
+        footer: "Si no quieres seguir recibiendo nuestros emails, puedes darte de baja debajo en cualquier momento."
       }
     };
-    const t = T[["fr","en","es"].includes(lang) ? lang : "fr"];
 
+    const t = T[["fr", "en", "es"].includes(lang) ? lang : "fr"];
     const li = t.bullets.map(b => `<li style="margin:6px 0">${b}</li>`).join("");
 
     const html = `<!doctype html><html><head>
@@ -87,7 +119,7 @@ export async function handler(event) {
       from: { email: FROM_EMAIL, name: FROM_NAME || "DanceSpot" },
       content: [{ type: "text/html", value: html }],
       categories: ["waitlist_welcome"],
-      // IMPORTANT : email transactionnel → ignorer les listes de désinscription
+      // Email transactionnel : on ignore les listes de désinscription, tout en gardant bounces/blocks
       mail_settings: {
         bypass_list_management: { enable: true },
         subscription_tracking: { enable: false }

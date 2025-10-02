@@ -1,4 +1,24 @@
 // netlify/functions/submission-created.js
+// ———————————————————————————————————————————————
+// ✅ PARAMÈTRES À PERSONNALISER
+// ———————————————————————————————————————————————
+const INSTAGRAM_URL = "https://www.instagram.com/dancespot.app";       // ← remplace si besoin
+const FACEBOOK_URL  = "https://www.facebook.com/profile.php?id=61581671904988"; // ← remplace si besoin
+const ASM_GROUP_ID  = 46604; // ← ⚠️ remplace par l'ID de ton Unsubscribe Group (SendGrid → Marketing → Unsubscribe Groups)
+
+// Textes de pied de mail (3 langues) incluant un lien "Se désabonner"
+const FOOTER_TEXT = {
+  fr: `Tu reçois cet email car tu t’es inscrit(e) à la liste d’attente de DanceSpot.
+      <a href="<%asm_group_unsubscribe_raw_url%>" target="_blank" rel="noopener">Se désabonner de la newsletter</a>.`,
+  en: `You’re receiving this email because you joined the DanceSpot waitlist.
+      <a href="<%asm_group_unsubscribe_raw_url%>" target="_blank" rel="noopener">Unsubscribe from the newsletter</a>.`,
+  es: `Recibes este correo porque te uniste a la lista de espera de DanceSpot.
+      <a href="<%asm_group_unsubscribe_raw_url%>" target="_blank" rel="noopener">Darse de baja del boletín</a>.`
+};
+
+// ———————————————————————————————————————————————
+// ✉️ FUNCTION
+// ———————————————————————————————————————————————
 export async function handler(event) {
   try {
     const body = JSON.parse(event.body || "{}");
@@ -14,15 +34,6 @@ export async function handler(event) {
     const lang  = (data.lang  || "fr").toLowerCase();
     if (!email) return { statusCode: 400, body: "Missing email" };
 
-    // ✅ Liens réseaux depuis les variables d’environnement (plus de mauvais liens)
-    const instagramUrl = (process.env.INSTAGRAM_URL || "").trim() || "https://instagram.com/";
-    const facebookUrl  = (process.env.FACEBOOK_URL  || "").trim() || "https://facebook.com/";
-
-    // ✅ Phrases “footer” remplaçables dans les 3 langues (tu mets “ceci” pour chaque langue)
-    const FOOTER_FR = (process.env.FOOTER_TEXT_FR || "").trim() || "—";
-    const FOOTER_EN = (process.env.FOOTER_TEXT_EN || "").trim() || "—";
-    const FOOTER_ES = (process.env.FOOTER_TEXT_ES || "").trim() || "—";
-
     const T = {
       fr: {
         subject: "Tu es sur la liste 🎟️ — DanceSpot arrive",
@@ -37,7 +48,7 @@ export async function handler(event) {
           "🚀 Accès anticipé pour les premiers inscrits — places limitées"
         ],
         follow: "Suis-nous pour les coulisses et les annonces :",
-        footer: "Si tu ne souhaites plus recevoir nos emails, tu peux te désinscrire à tout moment ci-dessous."
+        footer: FOOTER_TEXT.fr
       },
       en: {
         subject: "You’re on the list 🎟️ — DanceSpot is coming",
@@ -52,7 +63,7 @@ export async function handler(event) {
           "🚀 Early access for first subscribers — limited spots"
         ],
         follow: "Follow us for behind-the-scenes and drops:",
-        footer: "If you no longer wish to receive our emails, you can unsubscribe below anytime."
+        footer: FOOTER_TEXT.en
       },
       es: {
         subject: "¡Estás en la lista 🎟️ — DanceSpot llega pronto!",
@@ -67,11 +78,11 @@ export async function handler(event) {
           "🚀 Acceso anticipado para los primeros — plazas limitadas"
         ],
         follow: "Síguenos para novedades y anuncios:",
-        footer: "Si no quieres seguir recibiendo nuestros emails, puedes darte de baja debajo en cualquier momento."
+        footer: FOOTER_TEXT.es
       }
     };
 
-    const t = T[["fr", "en", "es"].includes(lang) ? lang : "fr"];
+    const t = T[["fr","en","es"].includes(lang) ? lang : "fr"];
     const li = t.bullets.map(b => `<li style="margin:6px 0">${b}</li>`).join("");
 
     const html = `<!doctype html><html><head>
@@ -99,10 +110,10 @@ export async function handler(event) {
       <ul>${li}</ul>
       <p style="margin:16px 0 8px 0;font-weight:700">${t.follow}</p>
       <p class="social" style="margin:8px 0 0 0">
-        <a class="ig" href="${instagramUrl}" target="_blank" rel="noopener noreferrer">Instagram</a>
-        <a class="fb" href="${facebookUrl}"  target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a class="ig" href="${INSTAGRAM_URL}" target="_blank" rel="noopener">Instagram</a>
+        <a class="fb" href="${FACEBOOK_URL}"  target="_blank" rel="noopener">Facebook</a>
       </p>
-      <p class="muted" style="margin-top:16px">${t.footer}</p>
+      <p class="muted" style="margin-top:16px;line-height:1.5">${t.footer}</p>
     </div>
     <p class="muted" style="margin:14px 8px">© ${new Date().getFullYear()} DanceSpot</p>
   </div>
@@ -114,16 +125,30 @@ export async function handler(event) {
       return { statusCode: 500, body: "Email not configured" };
     }
 
+    // ———————————————————————————————————————————————
+    // 📤 ENVOI SENDGRID
+    // ———————————————————————————————————————————————
     const payloadSend = {
       personalizations: [{ to: [{ email }], subject: t.subject }],
       from: { email: FROM_EMAIL, name: FROM_NAME || "DanceSpot" },
       content: [{ type: "text/html", value: html }],
       categories: ["waitlist_welcome"],
-      // Email transactionnel : on ignore les listes de désinscription, tout en gardant bounces/blocks
+      // 1) Toujours envoyer (confirmation) même si l’adresse est déjà sur listes → bypass
       mail_settings: {
         bypass_list_management: { enable: true },
-        subscription_tracking: { enable: false }
-      }
+        // 2) Activer l'injection du lien d'unsubscribe via substitution tag dans le HTML
+        subscription_tracking: {
+          enable: true,
+          substitution_tag: "<%asm_group_unsubscribe_raw_url%>"
+        }
+      },
+      // 3) Liens propres (pas de réécriture) mais on garde l'open tracking
+      tracking_settings: {
+        click_tracking: { enable: false },
+        open_tracking:  { enable: true }
+      },
+      // 4) Associer l'email au bon Unsubscribe Group (ASM)
+      asm: { group_id: ASM_GROUP_ID }
     };
 
     const send = async () => {

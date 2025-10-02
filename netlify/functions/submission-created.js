@@ -14,9 +14,9 @@ export async function handler(event) {
     const lang  = (data.lang  || "fr").toLowerCase();
     if (!email) return { statusCode: 400, body: "Missing email" };
 
-    // URLs réseaux – adapte si besoin
+    // Réseaux (adapte si besoin)
     const instagramUrl = "https://instagram.com/dancespot.app";
-    const facebookUrl  = "https://facebook.com/dancespotapp";
+    const facebookUrl  = "https://www.facebook.com/profile.php?id=61581671904988";
 
     const T = {
       fr: {
@@ -32,7 +32,8 @@ export async function handler(event) {
           "🚀 Accès anticipé pour les premiers inscrits — places limitées"
         ],
         follow: "Suis-nous pour les coulisses et les annonces :",
-        footer: "Si tu ne souhaites plus recevoir nos emails, tu peux te désinscrire à tout moment ci-dessous."
+        // Note : pas de lien visible de désinscription dans le corps du mail
+        footer: "Tu peux te désabonner à tout moment depuis tes préférences email."
       },
       en: {
         subject: "You’re on the list 🎟️ — DanceSpot is coming",
@@ -47,7 +48,7 @@ export async function handler(event) {
           "🚀 Early access for first subscribers — limited spots"
         ],
         follow: "Follow us for behind-the-scenes and drops:",
-        footer: "If you no longer wish to receive our emails, you can unsubscribe below anytime."
+        footer: "You can unsubscribe anytime from your email preferences."
       },
       es: {
         subject: "¡Estás en la lista 🎟️ — DanceSpot llega pronto!",
@@ -62,21 +63,15 @@ export async function handler(event) {
           "🚀 Acceso anticipado para los primeros — plazas limitadas"
         ],
         follow: "Síguenos para novedades y anuncios:",
-        footer: "Si no quieres seguir recibiendo nuestros emails, puedes darte de baja debajo en cualquier momento."
+        footer: "Puedes darte de baja en cualquier momento desde tus preferencias de correo."
       }
     };
     const t = T[["fr","en","es"].includes(lang) ? lang : "fr"];
 
     const li = t.bullets.map(b => `<li style="margin:6px 0">${b}</li>`).join("");
 
-    // Si tu comptes créer un groupe d'unsubscribe (ASM), définis SENDGRID_ASM_GROUP_ID dans Netlify.
+    // ID du groupe d’unsubscribe (ASM) si tu en crées un dans SendGrid (optionnel)
     const asmGroupId = parseInt(process.env.SENDGRID_ASM_GROUP_ID || "", 10);
-    // Lien de désinscription à afficher dans le corps :
-    // - ASM : <%asm_group_unsubscribe_raw_url%>
-    // - Sinon : <% %> (Subscription Tracking)
-    const unsubscribeAnchor = asmGroupId
-      ? `<a href="<%asm_group_unsubscribe_raw_url%>" target="_blank" rel="noopener noreferrer">Se désinscrire</a>`
-      : `<a href="<% %>" target="_blank" rel="noopener noreferrer">Se désinscrire</a>`;
 
     const html = `<!doctype html>
 <html>
@@ -92,7 +87,6 @@ export async function handler(event) {
   ul{padding-left:18px;margin:10px 0}
   .social a{display:inline-block;margin-right:10px;text-decoration:none;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
   .social a.fb{background:#1877F2}.social a.ig{background:#E1306C}
-  .unsub{margin-top:16px;color:#475569;font-size:13px}.unsub a{color:#2563eb}
 </style>
 </head>
 <body>
@@ -111,11 +105,7 @@ export async function handler(event) {
         <a class="fb" href="${facebookUrl}"  target="_blank" rel="noopener noreferrer">Facebook</a>
       </p>
 
-      <p class="unsub">
-        ${t.footer}<br>
-        ${unsubscribeAnchor}
-        <span style="display:block;margin-top:6px">Si le lien ne s’affiche pas, écris-nous : <a href="mailto:unsubscribe@dancespot.app?subject=Unsubscribe">unsubscribe@dancespot.app</a></span>
-      </p>
+      <p class="muted" style="margin-top:16px">${t.footer}</p>
     </div>
     <p class="muted" style="margin:14px 8px">© ${new Date().getFullYear()} DanceSpot</p>
   </div>
@@ -128,20 +118,15 @@ export async function handler(event) {
       return { statusCode: 500, body: "Email not configured" };
     }
 
+    // Envoi SendGrid
     const payloadSend = {
       personalizations: [{ to: [{ email }], subject: t.subject }],
       from: { email: FROM_EMAIL, name: FROM_NAME || "DanceSpot" },
       content: [{ type: "text/html", value: html }],
-      // 1) Si un ASM group est configuré, on l’utilise
+      // Utilise ASM si fourni, sinon Subscription Tracking (invisible dans le corps, mais conforme)
       ...(Number.isInteger(asmGroupId) && asmGroupId > 0
         ? { asm: { group_id: asmGroupId } }
-        // 2) Sinon on active Subscription Tracking
-        : { mail_settings: { subscription_tracking: {
-              enable: true,
-              text: "Pour vous désabonner, cliquez <% %>.",
-              html: "Pour vous désabonner, cliquez <a href='<% %>'>ici</a>."
-            } }
-          }
+        : { mail_settings: { subscription_tracking: { enable: true } } }
       )
     };
 

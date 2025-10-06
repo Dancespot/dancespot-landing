@@ -8,6 +8,7 @@
     <link rel="icon" href="assets/images/logo.png" type="image/png" />
     <link rel="apple-touch-icon" href="assets/images/logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
       .phone{
         width:240px;height:500px;border-radius:40px;overflow:hidden;
@@ -18,6 +19,15 @@
         height:32px;width:66%;left:17%;top:0;position:absolute;
         background:#222;border-bottom-left-radius:18px;border-bottom-right-radius:18px;opacity:.9;
         pointer-events:none;
+      }
+      .honeypot-field {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 0;
+        width: 0;
+        z-index: -1;
       }
     </style>
   </head>
@@ -61,10 +71,13 @@
 
           <div class="mt-6">
             <form name="subscribe" method="POST" data-netlify="true" action="./merci.html" class="flex flex-col sm:flex-row gap-3 max-w-xl">
-              <input type="hidden" name="form-name" value="subscribe"/><input type="text" name="bot-field" class="hidden"/>
+              <input type="hidden" name="form-name" value="subscribe"/>
+              <!-- Honeypot field -->
+              <input type="text" name="bot-field" class="honeypot-field" autocomplete="off"/>
               <!-- language sent with the form -->
               <input type="hidden" name="lang" value="" />
               <input type="email" name="email" required class="flex-1 rounded-xl px-4 py-3 border border-slate-300 bg-white/90" placeholder="Your email" data-i18n-placeholder="hero.emailPlaceholder"/>
+              <div class="g-recaptcha" data-sitekey="6Lc4q-ArAAAAALe-nbXj9D6CuGbibt6Pw5eAaUIa"></div>
               <button type="submit" class="rounded-2xl bg-blue-600 text-white px-5 py-3 text-base hover:bg-blue-700" data-i18n="hero.emailCta">Notify me at launch</button>
             </form>
             <p class="mt-2 text-xs opacity-70 max-w-xl" data-i18n="hero.consent">By signing up, you agree to receive updates from DanceSpot (you can unsubscribe anytime).</p>
@@ -142,7 +155,7 @@
     <section id="how" class="py-16 bg-slate-50/70">
       <div class="max-w-5xl mx-auto px-4 md:px-8 text-center">
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight" data-i18n="how.title">How it works</h2>
-        <p class="mt-2 opacity-80" data-i18n="how.subtitle">Let’s build DanceSpot with the community.</p>
+        <p class="mt-2 opacity-80" data-i18n="how.subtitle">Let's build DanceSpot with the community.</p>
         <div class="mt-10 grid md:grid-cols-3 gap-10 items-start">
           <div><div class="w-14 h-14 mx-auto rounded-full grid place-items-center bg-gradient-to-br from-indigo-400 to-cyan-400 text-white font-bold text-xl shadow">1</div><h3 class="mt-4 text-xl font-semibold" data-i18n="how.s1t">Join the waitlist</h3><p class="mt-2 text-sm opacity-80" data-i18n="how.s1d">Leave your email for updates.</p></div>
           <div><div class="w-14 h-14 mx-auto rounded-full grid place-items-center bg-gradient-to-br from-indigo-400 to-cyan-400 text-white font-bold text-xl shadow">2</div><h3 class="mt-4 text-xl font-semibold" data-i18n="how.s2t">Vote & give feedback</h3><p class="mt-2 text-sm opacity-80" data-i18n="how.s2d">Tell us what matters most to you.</p></div>
@@ -187,11 +200,14 @@
       <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-center" data-i18n="feedback.title">Your ideas matter</h2>
       <p class="mt-2 opacity-80 text-center" data-i18n="feedback.subtitle">Help us prioritize the next features.</p>
       <form name="feedback" method="POST" data-netlify="true" action="./merci.html" class="mt-6 grid gap-3">
-        <input type="hidden" name="form-name" value="feedback" /><input type="text" name="bot-field" class="hidden" />
+        <input type="hidden" name="form-name" value="feedback" />
+        <!-- Honeypot field -->
+        <input type="text" name="bot-field" class="honeypot-field" autocomplete="off" />
         <input type="hidden" name="lang" value="" />
         <textarea name="message" rows="4" class="w-full rounded-xl px-4 py-3 border border-slate-300 bg-white/90" placeholder="Your suggestions (optional)" data-i18n-placeholder="feedback.placeholder"></textarea>
         <div class="flex flex-col sm:flex-row gap-3">
           <input type="email" name="email" required class="flex-1 rounded-xl px-4 py-3 border border-slate-300 bg-white/90" placeholder="Your email" data-i18n-placeholder="feedback.emailPlaceholder" />
+          <div class="g-recaptcha" data-sitekey="6Lc4q-ArAAAAALe-nbXj9D6CuGbibt6Pw5eAaUIa"></div>
           <button type="submit" class="rounded-xl bg-blue-600 text-white px-5 py-3 hover:bg-blue-700" data-i18n="feedback.cta">Send my idea</button>
         </div>
       </form>
@@ -204,9 +220,12 @@
         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight" data-i18n="subscribe.title">Stay in the loop</h2>
         <p class="mt-2 text-white/90" data-i18n="subscribe.subtitle">Get the launch date and key info.</p>
         <form name="subscribe" method="POST" data-netlify="true" action="./merci.html" class="mt-6 flex flex-col sm:flex-row gap-3">
-          <input type="hidden" name="form-name" value="subscribe" /><input type="text" name="bot-field" class="hidden" />
+          <input type="hidden" name="form-name" value="subscribe" />
+          <!-- Honeypot field -->
+          <input type="text" name="bot-field" class="honeypot-field" autocomplete="off" />
           <input type="hidden" name="lang" value="" />
           <input type="email" name="email" required class="flex-1 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-500" placeholder="Your email" data-i18n-placeholder="subscribe.placeholder" />
+          <div class="g-recaptcha" data-sitekey="6Lc4q-ArAAAAALe-nbXj9D6CuGbibt6Pw5eAaUIa"></div>
           <button type="submit" class="rounded-xl bg-white text-slate-900 px-5 py-3" data-i18n="subscribe.cta">Alert me at launch</button>
         </form>
       </div>
@@ -301,7 +320,7 @@
           },
           how:{
             title:"How it works",
-            subtitle:"Let’s co-build DanceSpot with the community.",
+            subtitle:"Let's co-build DanceSpot with the community.",
             s1t:"Join the waitlist",
             s1d:"Leave your email to get updates.",
             s2t:"Vote & share feedback",
@@ -358,7 +377,7 @@
           organizers:{
             title:"Pour les organisateurs",
             p:"Publiez vos évènements et atteignez la bonne audience.",
-            b1:"Billetterie intégrée et contrôle d’accès",
+            b1:"Billetterie intégrée et contrôle d'accès",
             b2:"Promotion ciblée & SEO automatique",
             b3:"Tableau de bord analytics & insights sponsors"
           },
@@ -400,46 +419,46 @@
             title:"No te pierdas ningún evento de danza",
             subtitle:"DanceSpot reúne todos los eventos cerca de ti y recomienda los mejores para ti — con entradas integradas.",
             emailPlaceholder:"Tu correo",
-            emailCta:"Avísame al lanzamiento",
-            consent:"Al registrarte, aceptas recibir actualizaciones de DanceSpot (puedes darte de baja en cualquier momento).",
+            emailCta:"Avísame en el lanzamiento",
+            consent:"Al registrarte, aceptas recibir novedades de DanceSpot (puedes darte de baja en cualquier momento).",
             metrics1:"Eventos",metrics2:"Ciudades",metrics3:"Organizadores"
           },
           winwin:{
             title:"¿Por qué DanceSpot?",
-            d1:"Como bailarín, encuentra todos los eventos de danza cercanos en unos pocos toques.",
-            d2:"Como organizador, llega a la comunidad adecuada y atrae patrocinadores más fácilmente.",
-            d3:"Comunidad local más fuerte gracias a la visibilidad: más conexiones, más baile."
+            d1:"Como bailarín/a, encuentra todos los eventos de danza cerca de ti en pocos clics.",
+            d2:"Como organizador/a, llega a la comunidad adecuada y consigue patrocinio más fácilmente.",
+            d3:"La comunidad local se fortalece con visibilidad: más encuentros, más danza."
           },
           dancers:{
             title:"Para bailarines",
-            p:"Ve clases, sociales, battles, workshops y festivales cerca de ti de un vistazo.",
+            p:"Ve al instante clases, socials, battles, workshops y festivales cerca de ti.",
             f1:"Búsqueda por ubicación y estilos",
-            f2:"Seguimiento de tus battles, clases y festivales favoritos",
-            f3:"Descuentos de socios (clases, ropa, zapatos…)",
-            f4:"Monedero de eventos con entradas e información"
+            f2:"Sigue tus battles, clases y festivales favoritos",
+            f3:"Descuentos con partners (clases, ropa, zapatos…)",
+            f4:"Billetera de eventos con entradas e info"
           },
           organizers:{
             title:"Para organizadores",
             p:"Publica tus eventos y llega a la audiencia adecuada.",
-            b1:"Sistema de entradas integrado y control de acceso",
-            b2:"Promoción dirigida y SEO automático",
-            b3:"Panel de análisis e información para patrocinadores"
+            b1:"Entradas integradas y control de acceso",
+            b2:"Promoción segmentada y SEO automático",
+            b3:"Panel de analíticas e insights para patrocinio"
           },
           how:{
             title:"Cómo funciona",
-            subtitle:"Construyamos DanceSpot con la comunidad.",
+            subtitle:"Construyamos DanceSpot junto a la comunidad.",
             s1t:"Únete a la lista de espera",
-            s1d:"Deja tu correo para recibir actualizaciones.",
-            s2t:"Vota y da tu opinión",
-            s2d:"Dinos qué es lo más importante para ti.",
+            s1d:"Deja tu correo para recibir novedades.",
+            s2t:"Vota y comparte feedback",
+            s2d:"Cuéntanos qué es lo más importante para ti.",
             s3t:"Acceso anticipado y ventajas",
             s3d:"Disfruta de acceso anticipado y ofertas exclusivas."
           },
           testimonials:{
             title:"Opiniones de la comunidad",
-            t1:{text:"Gasto demasiado en eventos — clases, viajes, alojamiento… Necesito un respiro.", name:"Nadia, bailarina"},
-            t2:{text:"Me perdí otro workshop a 10 minutos de casa. Quiero todo en un solo lugar.", name:"Alex, bailarín"},
-            t3:{text:"Los patrocinios son difíciles. Necesito datos claros para convencer.", name:"Maya, organizadora"}
+            t1:{text:"Gasto demasiado para asistir a eventos — clases, viajes, alojamiento… Necesito alivio.", name:"Nadia, bailarina"},
+            t2:{text:"Volví a perderme un workshop a 10 minutos de casa. Lo quiero todo en un solo lugar.", name:"Alex, bailarín"},
+            t3:{text:"El patrocinio es difícil. Necesito insights claros para convencer.", name:"Maya, organizadora"}
           },
           feedback:{
             title:"Tus ideas importan",
@@ -449,37 +468,67 @@
             cta:"Enviar mi idea"
           },
           subscribe:{
-            title:"Mantente informado",
-            subtitle:"Recibe la fecha de lanzamiento y actualizaciones clave.",
+            title:"Mantente al tanto",
+            subtitle:"Recibe la fecha de lanzamiento e información clave.",
             placeholder:"Tu correo",
-            cta:"Avisarme al lanzamiento"
+            cta:"Avisarme en el lanzamiento"
           },
-          footer:{rights:"Todos los derechos reservados.",tag:"Un centro único para la comunidad mundial de danza."}
+          footer:{rights:"Todos los derechos reservados.",tag:"Un solo hub para la comunidad mundial de danza."}
         }
       };
 
-      function applyLang(lang){
-        document.documentElement.lang=lang;
+      function applyTranslations(lang){
+        const t = translations[lang] || translations.en; // fallback EN
         document.querySelectorAll('[data-i18n]').forEach(el=>{
-          const key=el.getAttribute('data-i18n');
-          const keys=key.split('.');
-          let value=translations[lang];
-          keys.forEach(k=>value=value?.[k]);
-          if(value) el.textContent=value;
+          const path = el.getAttribute('data-i18n').split('.');
+          let cur = t; for (const k of path) cur = cur?.[k];
+          if (typeof cur === 'string') el.textContent = cur;
         });
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
-          const key=el.getAttribute('data-i18n-placeholder');
-          const keys=key.split('.');
-          let value=translations[lang];
-          keys.forEach(k=>value=value?.[k]);
-          if(value) el.placeholder=value;
+          const path = el.getAttribute('data-i18n-placeholder').split('.');
+          let cur = t; for (const k of path) cur = cur?.[k];
+          if (typeof cur === 'string') el.setAttribute('placeholder', cur);
         });
-        document.querySelectorAll('input[name="lang"]').forEach(el=>el.value=lang);
       }
 
-      document.getElementById('lang').addEventListener('change',e=>applyLang(e.target.value));
-      applyLang('fr');
-      document.getElementById('year').textContent=new Date().getFullYear();
+      function setLangInputs(lang){
+        document.querySelectorAll('input[name="lang"]').forEach(el => { el.value = lang; });
+      }
+
+      const select = document.getElementById('lang');
+      const supported = ['fr','en','es'];
+      const stored = localStorage.getItem('lang');
+      const initial = supported.includes(stored) ? stored : 'en'; // default EN
+
+      select.value = initial;
+      applyTranslations(initial);
+      setLangInputs(initial);
+
+      select.addEventListener('change', () => {
+        const l = select.value;
+        if (!supported.includes(l)) return;
+        localStorage.setItem('lang', l);
+        applyTranslations(l);
+        setLangInputs(l);
+      });
+
+      document.getElementById('year').textContent = new Date().getFullYear();
     </script>
+
+    <!-- Hidden forms so Netlify registers the schemas -->
+    <form name="subscribe" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="subscribe" />
+      <input type="text" name="bot-field" />
+      <input type="email" name="email" />
+      <input type="hidden" name="lang" />
+    </form>
+
+    <form name="feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="feedback" />
+      <input type="text" name="bot-field" />
+      <textarea name="message"></textarea>
+      <input type="email" name="email" />
+      <input type="hidden" name="lang" />
+    </form>
   </body>
 </html>
